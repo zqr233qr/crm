@@ -21,7 +21,54 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 	$(function(){
 		
-		
+		$("#addBnt").click(function () {
+
+			/*
+
+			操作模态窗口 的方式：
+				需要操作的模态窗口的jQuery对象，调用modal方法，为该方法传递参数  show：打开模态窗口  hide：关闭模态窗口
+
+
+		 */
+
+			//alert(123);
+
+			//$("#createActivityModal").modal("show");
+
+			//走后台，目的是为了取得用户的信息列表，为所有者下拉框铺值
+			$.ajax({
+
+				url : "workbench/activity/getUserList.do",
+				type : "get",
+				dataType : "json",
+				success : function (data) {
+
+					/*
+
+						data
+							[{"id":?,"name":?....},{用户2}...]
+
+					 */
+
+					var html;
+
+					//遍历出来每一个n，就是每一个user对象
+					$.each(data,function (i,n) {
+
+						html += "<option value='"+n.id+"'>"+n.name+"</option>";
+
+					})
+
+					$("#create-marketActivityOwner").html(html);
+
+					//当所有的所有者处理完毕后展示模态窗口
+					$("#createActivityModal").modal("show");
+
+				}
+
+			})
+
+		})
 		
 	});
 	
@@ -47,9 +94,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 							<label for="create-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
 								<select class="form-control" id="create-marketActivityOwner">
-								  <option>zhangsan</option>
-								  <option>lisi</option>
-								  <option>wangwu</option>
+
 								</select>
 							</div>
                             <label for="create-marketActivityName" class="col-sm-2 control-label">名称<span style="font-size: 15px; color: red;">*</span></label>
@@ -111,9 +156,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 							<label for="edit-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
 								<select class="form-control" id="edit-marketActivityOwner">
-								  <option>zhangsan</option>
-								  <option>lisi</option>
-								  <option>wangwu</option>
+
 								</select>
 							</div>
                             <label for="edit-marketActivityName" class="col-sm-2 control-label">名称<span style="font-size: 15px; color: red;">*</span></label>
@@ -208,7 +251,32 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
-				  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActivityModal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
+					<%--
+						点击创建按钮，观察两个属性和属性值
+
+						data-toggle = "modal":
+							表示触发该按钮，将要打开一个模态窗口
+
+						data-target = "#createActivityModal":
+							表示要打开哪个模态窗口，通过#id的形式找到该窗口
+
+						现在这样做是有问题的：
+							问题在于没有办法对按钮的功能进行扩充
+
+						所以未来的实际项目开发，对于触发模态窗口的操作，一定不要写死在元素中，
+						应该由我们自己写js代码来操作
+
+
+						约定：
+							add/create:跳转到添加页，或者打开添加操作的模态窗口
+							save:执行添加操作
+							edit:跳转到修改页，或者打开修改操作的模态窗口
+							updata:执行修改操作
+							get:执行查询操作  find/select/query/...
+							特殊操作 login等
+					--%>
+
+				  <button type="button" class="btn btn-primary" id="addBnt"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
