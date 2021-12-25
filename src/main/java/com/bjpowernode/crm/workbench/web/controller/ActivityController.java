@@ -39,7 +39,58 @@ public class ActivityController extends HttpServlet {
 
                 pageList(request,response);
 
+            }else if ("/workbench/activity/delete.do".equals(path)){
+
+                delete(request,response);
+
+            }else if ("/workbench/activity/getUserListAndActivity.do".equals(path)){
+
+                getUserListAndActivity(request,response);
+
             }
+    }
+
+    private void getUserListAndActivity(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("获取要修改的uList和a");
+
+        String id = request.getParameter("id");
+
+        ActivityService as =(ActivityService) ServiceFactory.getService(new ActivityServiceImpl());
+
+        /*
+
+            总结：
+                controller调用service的方法，返回值已改是什么？
+                    前端要什么，就从service层取什么
+
+                前端需要的，关业务层去要
+                uList
+                a
+
+                以上的两项信息，复用率不高，我们选择使用map打包这两项信息即可
+                map
+
+         */
+
+        Map<String,Object> map = as.getUserListAndActivity(id);
+
+        PrintJson.printJsonObj(response,map);
+
+    }
+
+    private void delete(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("执行市场活动那个的删除操作");
+
+        String[] ids = request.getParameterValues("id");
+
+        ActivityService as = (ActivityService) ServiceFactory.getService(new ActivityServiceImpl());
+
+        boolean flag = as.delete(ids);
+
+        PrintJson.printJsonFlag(response,flag);
+
     }
 
     private void pageList(HttpServletRequest request, HttpServletResponse response) {
@@ -58,11 +109,11 @@ public class ActivityController extends HttpServlet {
         String pageSizeStr = request.getParameter("pageSize");
 
         //每页展现的记录数
-        Integer pageSize = Integer.valueOf(pageSizeStr);
-        Integer pageNo = Integer.valueOf(pageNoStr);
+        int pageSize = Integer.valueOf(pageSizeStr);
+        int pageNo = Integer.valueOf(pageNoStr);
 
         //计算出略过的记录数
-        Integer skipCount = (pageNo-1)*pageSize;
+        int skipCount = (pageNo-1)*pageSize;
 
         Map<String,Object> map = new HashMap<>();
 

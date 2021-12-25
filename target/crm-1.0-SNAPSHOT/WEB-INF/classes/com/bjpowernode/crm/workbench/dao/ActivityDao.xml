@@ -65,7 +65,7 @@
 
             <if test="startDate!=null and startDate!=''">
 
-                and a.startDate &gt; #{staetDate}
+                and a.startDate &gt; #{startDate}
 
             </if>
 
@@ -107,7 +107,7 @@
 
             <if test="startDate!=null and startDate!=''">
 
-                and a.startDate &gt; #{staetDate}
+                and a.startDate &gt; #{startDate}
 
             </if>
 
@@ -119,11 +119,24 @@
 
         </where>
 
-        order by a.createTime desc
+    </select>
 
-        limit #{skipCount},#{pageSize}
+    <delete id="delete">
+
+        delete from tbl_activity
+        where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+
+            #{id}
+
+        </foreach>
+
+    </delete>
+
+    <select id="getById" resultType="Activity">
+
+        select * from tbl_activity where id=#{id}
 
     </select>
 	
 </mapper>
-

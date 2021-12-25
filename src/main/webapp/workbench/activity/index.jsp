@@ -24,16 +24,22 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 	$(function(){
 
+		$(".time").datetimepicker({
+			minView: "month",
+			language:  'zh-CN',
+			format: 'yyyy-mm-dd',
+			autoclose: true,
+			todayBtn: true,
+			pickerPosition: "bottom-left"
+		});
+
+		//页面加载完毕后触发一个方法
+		//默认展开列表的第一页，没页展示两条记录
+		pageList(1,2);
+
 		$("#addBnt").click(function () {
 
-			$(".time").datetimepicker({
-				minView: "month",
-				language:  'zh-CN',
-				format: 'yyyy-mm-dd',
-				autoclose: true,
-				todayBtn: true,
-				pickerPosition: "bottom-left"
-			});
+
 
 			/*
 
@@ -102,7 +108,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 			})
 
-		})
+		});
 
 
 		//为保存按钮绑定事件，执行添加操作
@@ -136,6 +142,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 						//添加成功后
 						//刷新市场活动信息列表（局部刷新）
 
+						pageList(1,2);
 						//清空添加操作的模态窗口中的数据
 						//提交表单
 						//$("#activityAddForm").submit;
@@ -166,11 +173,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				}
 
 			})
-		})
+		});
 
-		//页面加载完毕后触发一个方法
-		//默认展开列表的第一页，没页展示两条记录
-		pageList(1,2);
+
 
 		//为查询按钮绑定事件，触发pageList()方法
 		$("#searchBnt").click(function () {
@@ -191,24 +196,24 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 
 
-		})
+		});
 
 		//为全选的复选宽绑定全选事件
 		$("#qx").click(function () {
 
 			$("input[name=xz]").prop("checked",this.checked);
 
-		})
+		});
 
 
 		//以下这种写法是不行的
-		$("input[name=xz]").click(function () {
+		/*$("input[name=xz]").click(function () {
 
 			alert(123);
 
-		})
+		})*/
 
-		//因为动态生成的袁术，是不能够以普通绑定事件的形式来进行操作的
+		//因为动态生成的元素，是不能够以普通绑定事件的形式来进行操作的
 		/*
 
 			动态生产的元素，我们要以on的形式来触发事件
@@ -223,8 +228,154 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			$("#qx").prop("checked",$("input[name=xz]").length==$("input[name=xz]:checked").length);
 
 		})
+
+
+		//为删除按钮绑定事件，执行市场活动删除操作
+		$("#deleteBtn").click(function () {
+
+			//找到复选框中所有的挑√的复选框的jQuery对象
+			var $xz = $("input[name=xz]:checked");
+
+			if ($xz.length==0){
+
+				alert("请选择要删除的记录");
+
+				//肯定选了，而且有可能是1条，有可能是多条
+			}else {
+
+				if (confirm("你确定要删除吗？")){
+
+					//url:workbench/activity/delete.do?id=xxx&id=xxx
+
+					//拼接参数
+					var param = "";
+
+					//将$xz中的每一个dom对象遍历出来，取其value值，就相当于取得了所需要删除的的id值
+					for (var i=0;i<$xz.length;i++){
+
+						param += "id="+$($xz[i]).val();
+
+
+						//如果不是最后一个元素，需要在后面追加一个&符
+						if (i<$xz.length-1){
+
+							param += "&";
+
+						}
+
+					}
+
+
+					$.ajax({
+
+						url : "workbench/activity/delete.do",
+						data : param,
+						type : "post",
+						dataType : "json",
+						success : function (data) {
+
+							/*
+
+                                data
+                                    {"success": true/false}
+
+                             */
+
+							if (data.success){
+
+								//删除成功后
+								pageList(1,2);
+
+							}else {
+
+								alert("删除市场活动失败");
+
+							}
+
+						}
+
+					})
+				}
+			}
+		})
+
+
+
+		//为修改按钮绑定事件，打开修改操作的模态窗口
+		$("#editBnt").click(function () {
+
+			var $xz = $("input[name=xz]:checked");
+
+			if ($xz.length==0){
+
+				alert("请选择要修改的记录条");
+
+			}else if ($xz.length!=1){
+
+				alert("请选择一条记录条");
+
+			//肯定只选择了一条记录
+			}else {
+
+				var id =$xz.val();
+
+				$.ajax({
+
+					url : "workbench/activity/getUserListAndActivity.do",
+					data : {
+						"id" : id
+					},
+					type : "get",
+					dataType : "json",
+					success : function (data) {
+
+						/*
+
+							data
+								用户列表
+								市场活动对象
+
+								{"uList":[{用户1},{2},{3}],"a":{市场活动}}
+
+						 */
+
+
+						//处理下拉框
+						var html = "";
+
+						$.each(data.uList,function (i,n) {
+
+							html += "<option value='"+n.id+"'>"+n.name+"</option>"
+
+						});
+
+						$("#edit-owner").html(html);
+
+
+						//处理单条
+						$("#edit-id").val(data.a.id);
+						$("#edit-name").val(data.a.name);
+						$("#edit-owner").val(data.a.owner);
+						$("#edit-startDate").val(data.a.startDate);
+						$("#edit-endDate").val(data.a.endDate);
+						$("#edit-cost").val(data.a.cost);
+						$("#edit-description").val(data.a.description);
+
+
+						//所有值都填写完毕后打开模态窗口
+
+						$("#editActivityModal").modal("show");
+					}
+
+
+				})
+
+			}
+		})
 		
 	});
+
+
 
 	/*
 
@@ -248,6 +399,9 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 	 */
 
 	function pageList(pageNo,pageSize) {
+
+		//将全选的复选框的√去掉
+		$("#qx").prop("checked",false);
 
 
 		//查询前，将隐藏域中保存的信息取出来，重新赋予到搜索框
@@ -281,7 +435,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 						[{市场活动1},{市场活动2},{市场活动3}...] List<Activity> aList
 						一会分页插件需要的：查询出来的总记录条数
 
-						{"total":100,[{市场活动1},{市场活动2},{市场活动3}...]}
+						{"total":100,dataList:[{市场活动1},{市场活动2},{市场活动3}...]}
 
 
 				 */
@@ -299,7 +453,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				html +='<td>'+n.endDate+'</td>';
 				html +='</tr>';
 
-				})
+				});
 
 				$("#activityBody").html(html);
 
@@ -322,13 +476,12 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 					showRowsDefaultInfo: true,
 
 
+
 					//该回调函数是在，点击分页组件的时候触发的
-					onChangePage : function(event, data){
-						pageList(data.currentPage , data.rowsPerPage);
+					onChangePage : function(event,data){
+						pageList(data.currentPage ,data.rowsPerPage);
 					}
 				});
-
-
 			}
 		})
 
@@ -422,42 +575,54 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				<div class="modal-body">
 				
 					<form class="form-horizontal" role="form">
+
+						<input type="hidden" id="edit-id"/>
 					
 						<div class="form-group">
 							<label for="edit-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
-								<select class="form-control" id="edit-marketActivityOwner">
+								<select class="form-control" id="edit-owner">
 
 								</select>
 							</div>
                             <label for="edit-marketActivityName" class="col-sm-2 control-label">名称<span style="font-size: 15px; color: red;">*</span></label>
                             <div class="col-sm-10" style="width: 300px;">
-                                <input type="text" class="form-control" id="edit-marketActivityName" value="发传单">
+                                <input type="text" class="form-control" id="edit-name">
                             </div>
 						</div>
 
 						<div class="form-group">
 							<label for="edit-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-startTime" value="2020-10-10">
+								<input type="text" class="form-control time" id="edit-startDate">
 							</div>
 							<label for="edit-endTime" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-endTime" value="2020-10-20">
+								<input type="text" class="form-control time" id="edit-endDate">
 							</div>
 						</div>
 						
 						<div class="form-group">
 							<label for="edit-cost" class="col-sm-2 control-label">成本</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-cost" value="5,000">
+								<input type="text" class="form-control" id="edit-cost">
 							</div>
 						</div>
 						
 						<div class="form-group">
 							<label for="edit-describe" class="col-sm-2 control-label">描述</label>
 							<div class="col-sm-10" style="width: 81%;">
-								<textarea class="form-control" rows="3" id="edit-describe">市场活动Marketing，是指品牌主办或参与的展览会议与公关市场活动，包括自行主办的各类研讨会、客户交流会、演示会、新产品发布会、体验会、答谢会、年会和出席参加并布展或演讲的展览会、研讨会、行业交流会、颁奖典礼等</textarea>
+
+								<%--
+
+									关于文本域textarea：
+										（1）一定是要以标签对的形式来展现的，正常状态下标签对要紧紧的挨着
+										（2）textarea虽然是以标签对的形式来展现的，但是他也是属于表单元素的范畴
+												我们所有的对于textarea的取值与复制操作都是统一使用val(()方法（而不是html()方法）
+
+								--%>
+
+								<textarea class="form-control" rows="3" id="edit-description"></textarea>
 							</div>
 						</div>
 						
@@ -466,7 +631,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">更新</button>
+					<button type="button" class="btn btn-primary" id="updateBnt">更新</button>
 				</div>
 			</div>
 		</div>
@@ -548,8 +713,8 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 					--%>
 
 				  <button type="button" class="btn btn-primary" id="addBnt"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-default" id="editBnt"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
+				  <button type="button" class="btn btn-danger" id="deleteBtn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				
 			</div>

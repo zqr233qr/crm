@@ -4,10 +4,10 @@ import java.util.List;
 
 public class PaginationVO<T> {
 
-    private Integer total;
+    private int total;
     private List<T> dataList;
 
-    public Integer getTotal() {
+    public int getTotal() {
         return total;
     }
 
