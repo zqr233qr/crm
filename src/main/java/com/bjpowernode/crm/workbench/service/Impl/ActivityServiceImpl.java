@@ -88,6 +88,30 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    public Activity detail(String id) {
+
+        Activity a = activityDao.detail(id);
+
+        return a;
+    }
+
+    @Override
+    public boolean update(Activity a) {
+
+        boolean flag = true;
+
+
+
+        int count = activityDao.update(a);
+
+        if (count!=1){
+            flag = false;
+        }
+
+        return flag;
+    }
+
+    @Override
     public Map<String, Object> getUserListAndActivity(String id) {
 
         //取uList
