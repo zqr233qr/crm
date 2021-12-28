@@ -182,5 +182,72 @@
         where a.id=#{id}
 
     </select>
+
+
+    <select id="getActivityByClue" resultType="Activity">
+
+        select
+
+        car.id as id,
+        u.name as owner,
+        a.name,
+        a.startDate,
+        a.endDate
+
+        from tbl_activity a
+        join tbl_user u
+        on a.owner=u.id
+        join tbl_clue_activity_relation car
+        on a.id=car.activityId
+        where car.clueId=#{clueId}
+
+    </select>
+
+
+    <select id="getActivityListByNameNotClueId" resultType="Activity">
+
+        select
+
+        a.id,
+        a.name,
+        u.name as owner,
+        a.startDate,
+        a.endDate
+
+        from tbl_activity a
+        join tbl_user u
+        on u.id=a.owner
+
+        where a.name like '%' #{name} '%' and a.id not in (
+
+        select
+
+        activityId
+
+        from tbl_clue_activity_relation
+
+        where clueId=#{clueId}
+
+        )
+
+    </select>
+
+    <select id="getActivityListByName" resultType="Activity">
+
+        select
+
+        a.id,
+        a.name,
+        u.name as owner,
+        a.startDate,
+        a.endDate
+
+        from tbl_activity a
+        join tbl_user u
+        on u.id=a.owner
+
+        where a.name like '%' #{name} '%'
+
+    </select>
 	
 </mapper>

@@ -75,6 +75,27 @@
     <url-pattern>/workbench/clue/getUserList.do</url-pattern>
     <url-pattern>/workbench/clue/save.do</url-pattern>
     <url-pattern>/workbench/clue/detail.do</url-pattern>
+    <url-pattern>/workbench/clue/getActivityByClue.do</url-pattern>
+    <url-pattern>/workbench/clue/unBond.do</url-pattern>
+    <url-pattern>/workbench/clue/getActivityListByNameNotClueId.do</url-pattern>
+    <url-pattern>/workbench/clue/bund.do</url-pattern>
+    <url-pattern>/workbench/clue/getActivityListByName.do</url-pattern>
+    <url-pattern>/workbench/clue/convent.do</url-pattern>
+  </servlet-mapping>
+
+
+
+
+  <!--交易控制器-->
+  <servlet>
+    <servlet-name>TranController</servlet-name>
+    <servlet-class>com.bjpowernode.crm.workbench.web.controller.TranController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TranController</servlet-name>
+    <url-pattern>/workbench/transaction/add.do</url-pattern>
+    <url-pattern>/workbench/transaction/getCustomerName.do</url-pattern>
+    <url-pattern>/workbench/transaction/save.do</url-pattern>
   </servlet-mapping>
   
   
