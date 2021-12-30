@@ -20,6 +20,7 @@ import com.bjpowernode.crm.workbench.service.Impl.CustomerServiceImpl;
 import com.bjpowernode.crm.workbench.service.Impl.TranServiceImpl;
 import com.bjpowernode.crm.workbench.service.TranService;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +47,59 @@ public class TranController extends HttpServlet {
 
             save(request, response);
 
+        }else if ("/workbench/transaction/detail.do".equals(path)) {
+
+            detail(request, response);
+
+        }else if ("/workbench/transaction/echarts.do".equals(path)) {
+
+            echarts(request, response);
+
         }
+    }
+
+    private void echarts(HttpServletRequest request, HttpServletResponse response) {
+
+        TranService ts = (TranService) ServiceFactory.getService(new TranServiceImpl());
+
+        Map<String,Object> map = ts.echarts();
+
+        PrintJson.printJsonObj(response,map);
+
+    }
+
+    private void detail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        String id = request.getParameter("id");
+
+        TranService ts = (TranService) ServiceFactory.getService(new TranServiceImpl());
+
+        Tran t = ts.detail(id);
+
+        //处理可能性
+        /*
+
+            阶段  t
+            阶段和可能性之间的对应关系  pMap
+
+         */
+
+        String stage = t.getStage();
+
+        //ServletContext application = this.getServletContext();
+        //ServletContext application2 = request.getServletContext();
+        //ServletContext application3 = this.getServletConfig().getServletContext();
+
+        Map<String,String> pMap = (Map<String, String>) this.getServletContext().getAttribute("pMap");
+
+        String possibility = pMap.get(stage);
+
+        t.setPossibility(possibility);
+
+        request.setAttribute("t",t);
+
+        request.getRequestDispatcher("/workbench/transaction/detail.jsp").forward(request,response);
+
     }
 
     private void save(HttpServletRequest request, HttpServletResponse response) throws IOException {

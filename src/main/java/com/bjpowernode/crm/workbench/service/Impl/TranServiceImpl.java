@@ -10,6 +10,10 @@ import com.bjpowernode.crm.workbench.domain.Tran;
 import com.bjpowernode.crm.workbench.domain.TranHistory;
 import com.bjpowernode.crm.workbench.service.TranService;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class TranServiceImpl implements TranService {
 
@@ -74,5 +78,28 @@ public class TranServiceImpl implements TranService {
         }
 
         return flag;
+    }
+
+    @Override
+    public Tran detail(String id) {
+
+        Tran t = tranDao.detail(id);
+
+        return t;
+    }
+
+    @Override
+    public Map<String, Object> echarts() {
+
+        int total = tranDao.getTotal();
+
+        List<Map<String,String>> dataList = tranDao.getCharts();
+
+        Map<String,Object> map = new HashMap<>();
+
+        map.put("total",total);
+        map.put("dataList",dataList);
+
+        return map;
     }
 }
